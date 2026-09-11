@@ -1,5 +1,4 @@
 docker run \
-  --rm \
   -it \
   --gpus all \
   --shm-size=2g \
