@@ -156,10 +156,8 @@ class DetectionTests(unittest.TestCase):
             for name, value in [('2.png', 20), ('1.png', 10)]:
                 Image.new('RGB', (4, 4), (value, value, value)).save(root / name)
             (root / 'notes.txt').write_text('not a template')
-            face_model = Mock()
-            face_model.predict.return_value = [SimpleNamespace(boxes=[])]
             with patch.object(detection.os, 'listdir', return_value=['2.png', 'notes.txt', '1.png']):
-                templates = detection.load_templates(root, face_model, (4, 4))
+                templates = detection.load_templates(root, card_size=(4, 4))
         self.assertEqual([int(image[0, 0, 0]) for image in templates], [20, 10])
 
 

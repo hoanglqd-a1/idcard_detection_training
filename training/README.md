@@ -79,7 +79,7 @@ Ensure these assets are available:
 
 - `model/yolov8s-detect.pt`: trained card detector.
 - `model/yolov8n-face.pt`: separately supplied face detector; this repository does not train it.
-- Reference card images in `template_samples/`.
+- Reference card images with faces already blacked out in `template_samples/`.
 - The selected input image in `test_images/`.
 
 Run:
@@ -115,7 +115,7 @@ from training.detection import CARD_SIZE, ROOT, analyze_card, load_image, load_t
 # Initialize once and reuse for subsequent images.
 detector = YOLO(str(ROOT / 'model' / 'yolov8s-detect.pt')).eval()
 face_detector = YOLO(str(ROOT / 'model' / 'yolov8n-face.pt')).eval()
-templates = load_templates(ROOT / 'template_samples', face_detector)
+templates = load_templates(ROOT / 'template_samples')
 
 image = load_image(ROOT / 'test_images' / 'image6.png', CARD_SIZE)
 result = analyze_card(detector, image, templates, face_detector)
@@ -152,6 +152,13 @@ configuration errors still propagate instead of being labeled as no detection.
 All matching entry points default to `DEFAULT_MATCH_THRESHOLD = 0.8`.
 `classify(...)` retains its index-only return;
 `classify_with_score(...)` exposes the accepted index and best score together.
+
+Templates are loaded as RGB and resized to `CARD_SIZE`; loading does not run the
+face detector. `load_templates(template_dir, card_size=CARD_SIZE)` no longer
+takes a face model. The face model is still required to mask the extracted input
+card before comparison. Use the same black-mask convention for reference images.
+When saving RGB arrays with OpenCV, convert them with
+`cv2.cvtColor(image, cv2.COLOR_RGB2BGR)` before `cv2.imwrite` to preserve colors.
 
 ## Tests
 

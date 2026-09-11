@@ -107,14 +107,17 @@ def remove_face(model: 'YOLO', card: np.ndarray):
     return apply_mask(card, mask)
 
 
-def load_templates(template_dir, face_model, card_size=CARD_SIZE):
-    """Load and mask template images; list indices are the classification labels.
+def load_templates(
+    template_dir: str | Path, card_size: tuple[int, int] = CARD_SIZE,
+) -> list[np.ndarray]:
+    """Load pre-masked templates as RGB and resize for comparison.
 
+    Template faces must already be blacked out; no face model is run here.
     Preserve directory listing order to retain the existing label mapping.
     """
     paths = (Path(template_dir) / name for name in os.listdir(template_dir))
     return [
-        remove_face(face_model, load_image(path, card_size))
+        load_image(path, card_size)
         for path in paths
         if path.is_file() and path.suffix.lower() in IMAGE_EXTENSIONS
     ]
@@ -204,7 +207,7 @@ def main():
 
     detect_model = YOLO(str(ROOT / 'model' / 'yolov8s-detect.pt')).eval()
     face_model = YOLO(str(ROOT / 'model' / 'yolov8n-face.pt')).eval()
-    templates = load_templates(ROOT / 'template_samples', face_model)
+    templates = load_templates(ROOT / 'template_samples')
     image = load_image(ROOT / 'test_images' / 'image6.png', CARD_SIZE)
     card, label = detect_card(detect_model, image, templates, face_model)
     print('Detected card label:', label)

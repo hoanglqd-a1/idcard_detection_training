@@ -10,12 +10,15 @@ from itertools import combinations
 import cv2
 import numpy as np
 from PIL import Image
+from typing import Optional
 
 
-def load_image(image_path, image_size: tuple[int, int]):
-    """Load an RGB image and resize to (width, height)."""
+def load_image(image_path, image_size: Optional[tuple[int, int]] = None):
+    """Load an RGB image and resize to (width, height) if provided."""
     with Image.open(image_path) as image:
-        return np.array(image.convert('RGB').resize(image_size))
+        if image_size is not None:
+            return np.array(image.convert('RGB').resize(image_size))
+        return np.array(image.convert('RGB'))
 
 
 def order_points(pts):
